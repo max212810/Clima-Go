@@ -1,7 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
 
-/* TEMA OSCURO (POR DEFECTO) */
-.weather-dashboard-viewport.dark-theme {
+/* ==========================================================================
+   SISTEMA DE 3 TEMAS (OSCURO, CLARO Y CRISTAL)
+   ========================================================================== */
+
+/* 1. TEMA OSCURO */
+.weather-dashboard-viewport.theme-dark {
   --bg-main: #141518;
   --bg-card: #222327;
   --bg-input: #2e2f34;
@@ -12,10 +16,11 @@
   --text-muted: #6c727f;
   --border-color: rgba(255, 255, 255, 0.08);
   --shadow-color: rgba(0, 0, 0, 0.4);
+  --blur-card: none;
 }
 
-/* TEMA CLARO */
-.weather-dashboard-viewport.light-theme {
+/* 2. TEMA CLARO */
+.weather-dashboard-viewport.theme-light {
   --bg-main: #f0f2f5;
   --bg-card: #ffffff;
   --bg-input: #e4e6eb;
@@ -26,6 +31,22 @@
   --text-muted: #8a8d91;
   --border-color: rgba(0, 0, 0, 0.08);
   --shadow-color: rgba(0, 0, 0, 0.08);
+  --blur-card: none;
+}
+
+/* 3. TEMA CRISTAL (GLASSMORPHISM ELEGANTE) */
+.weather-dashboard-viewport.theme-glass {
+  --bg-main: linear-gradient(135deg, #090d16 0%, #0f172a 40%, #1e1b4b 100%);
+  --bg-card: rgba(255, 255, 255, 0.08);
+  --bg-input: rgba(255, 255, 255, 0.12);
+  --bg-hourly-card: rgba(255, 255, 255, 0.05);
+  --accent-green: #38bdf8;
+  --text-white: #ffffff;
+  --text-gray: #cbd5e1;
+  --text-muted: #94a3b8;
+  --border-color: rgba(255, 255, 255, 0.22);
+  --shadow-color: rgba(0, 0, 0, 0.35);
+  --blur-card: blur(20px);
 }
 
 * {
@@ -42,11 +63,12 @@ body {
 }
 
 .weather-dashboard-viewport {
-  background-color: var(--bg-main);
+  background: var(--bg-main);
   color: var(--text-white);
   min-height: 100vh;
   padding: 2.2rem 1.5rem;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  /* TRANSICIONES FLUIDAS AL CAMBIAR DE TEMA */
+  transition: background 0.4s ease, color 0.4s ease;
 }
 
 .container-inner {
@@ -85,7 +107,7 @@ body {
   color: #38bdf8;
 }
 
-/* INTERRUPTOR MODO CLARO / OSCURO */
+/* INTERRUPTOR MODO DE 3 ESTADOS */
 .dark-mode-toggle {
   display: flex;
   align-items: center;
@@ -95,6 +117,17 @@ body {
   color: var(--text-white);
   cursor: pointer;
   user-select: none;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  padding: 0.4rem 0.9rem;
+  border-radius: 50px;
+  backdrop-filter: var(--blur-card);
+  -webkit-backdrop-filter: var(--blur-card);
+  transition: all 0.3s ease;
+}
+
+.dark-mode-toggle:hover {
+  transform: translateY(-2px);
 }
 
 .switch-btn {
@@ -106,9 +139,9 @@ body {
   transition: background 0.3s;
 }
 
-.switch-btn.active {
-  background: var(--accent-green);
-}
+.switch-btn.dark-active { background: #6366f1; }
+.switch-btn.light-active { background: #f59e0b; }
+.switch-btn.glass-active { background: #38bdf8; }
 
 .switch-ball {
   width: 18px;
@@ -118,13 +151,13 @@ body {
   position: absolute;
   top: 3px;
   left: 3px;
-  transition: transform 0.3s;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.switch-btn.active .switch-ball {
-  transform: translateX(24px);
-}
+.switch-btn.dark-active .switch-ball { transform: translateX(0px); }
+.switch-btn.light-active .switch-ball { transform: translateX(12px); }
+.switch-btn.glass-active .switch-ball { transform: translateX(24px); }
 
 .search-box-bar {
   flex: 1;
@@ -144,6 +177,8 @@ body {
 .search-input-field {
   width: 100%;
   background: var(--bg-card);
+  backdrop-filter: var(--blur-card);
+  -webkit-backdrop-filter: var(--blur-card);
   border: 1px solid var(--border-color);
   outline: none;
   border-radius: 50px;
@@ -179,7 +214,31 @@ body {
   opacity: 0.9;
 }
 
-/* PANELES DE INFORMACIÓN (DESKTOP) */
+/* ==========================================================================
+   ANIMACIÓN EN CASCADA (STAGGERED ENTRANCE)
+   ========================================================================== */
+@keyframes fadeInUpCascade {
+  from {
+    opacity: 0;
+    transform: translateY(28px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.cascade-item {
+  animation: fadeInUpCascade 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+}
+
+.delay-1 { animation-delay: 0.05s; }
+.delay-2 { animation-delay: 0.15s; }
+.delay-3 { animation-delay: 0.25s; }
+.delay-4 { animation-delay: 0.35s; }
+
+/* PANELES CON SOPORTE DE TRANSICIONES Y GLASSMORPHISM */
 .top-dashboard-grid {
   display: grid;
   grid-template-columns: 0.8fr 1.2fr;
@@ -188,6 +247,8 @@ body {
 
 .panel-clock {
   background: var(--bg-card);
+  backdrop-filter: var(--blur-card);
+  -webkit-backdrop-filter: var(--blur-card);
   border: 1px solid var(--border-color);
   border-radius: 24px;
   padding: 2.2rem;
@@ -197,6 +258,7 @@ body {
   justify-content: center;
   text-align: center;
   box-shadow: 0 10px 30px var(--shadow-color);
+  transition: all 0.4s ease;
 }
 
 .city-name-header {
@@ -222,6 +284,8 @@ body {
 
 .panel-weather-main {
   background: var(--bg-card);
+  backdrop-filter: var(--blur-card);
+  -webkit-backdrop-filter: var(--blur-card);
   border: 1px solid var(--border-color);
   border-radius: 24px;
   padding: 2.2rem;
@@ -230,6 +294,7 @@ body {
   gap: 1.5rem;
   align-items: center;
   box-shadow: 0 10px 30px var(--shadow-color);
+  transition: all 0.4s ease;
 }
 
 .main-temp-block {
@@ -289,6 +354,11 @@ body {
 .vector-weather-icon-lg {
   font-size: 4.8rem;
   margin-bottom: 0.8rem;
+  transition: transform 0.3s ease;
+}
+
+.vector-weather-icon-lg:hover {
+  transform: scale(1.1);
 }
 
 .condition-label-text {
@@ -334,10 +404,13 @@ body {
 
 .panel-5days {
   background: var(--bg-card);
+  backdrop-filter: var(--blur-card);
+  -webkit-backdrop-filter: var(--blur-card);
   border: 1px solid var(--border-color);
   border-radius: 24px;
   padding: 1.8rem 2.2rem;
   box-shadow: 0 10px 30px var(--shadow-color);
+  transition: all 0.4s ease;
 }
 
 .panel-title {
@@ -384,10 +457,13 @@ body {
 
 .panel-hourly {
   background: var(--bg-card);
+  backdrop-filter: var(--blur-card);
+  -webkit-backdrop-filter: var(--blur-card);
   border: 1px solid var(--border-color);
   border-radius: 24px;
   padding: 1.8rem 2.2rem;
   box-shadow: 0 10px 30px var(--shadow-color);
+  transition: all 0.4s ease;
 }
 
 .hourly-cards-row {
@@ -398,6 +474,8 @@ body {
 
 .hourly-card-box {
   background: var(--bg-hourly-card);
+  backdrop-filter: var(--blur-card);
+  -webkit-backdrop-filter: var(--blur-card);
   border: 1px solid var(--border-color);
   border-radius: 24px;
   padding: 1.2rem 0.5rem;
@@ -407,11 +485,11 @@ body {
   justify-content: space-between;
   gap: 0.8rem;
   text-align: center;
-  transition: transform 0.2s;
+  transition: transform 0.25s ease, background 0.3s ease;
 }
 
 .hourly-card-box:hover {
-  transform: translateY(-4px);
+  transform: translateY(-5px);
 }
 
 .hourly-time {
@@ -450,7 +528,7 @@ body {
 }
 
 /* ==========================================================================
-   ADAPTACIÓN MÓVIL EXCLUSIVA Y COMPACTA (SÓLO PARA TELÉFONOS <= 768px)
+   ADAPTACIÓN RESPONSIVA PARA CELULARES
    ========================================================================== */
 @media (max-width: 768px) {
   body, html {
@@ -459,7 +537,7 @@ body {
   }
 
   .weather-dashboard-viewport {
-    padding: 1rem 0.8rem;
+    padding: 1.2rem 0.9rem;
     overflow-x: hidden;
   }
 
@@ -574,7 +652,6 @@ body {
     font-size: 0.88rem;
   }
 
-  /* PRONÓSTICO DE 3 DÍAS EN MÓVIL (CORREGIDO CORTE EN BORDE DERECHO) */
   .panel-5days {
     padding: 1.2rem 1.0rem;
     border-radius: 20px;
@@ -619,7 +696,6 @@ body {
     white-space: nowrap;
   }
 
-  /* SCROLL HORIZONTAL CÓMODO EN EL PRONÓSTICO DE HORAS */
   .panel-hourly {
     padding: 1.2rem 1rem;
     border-radius: 20px;
