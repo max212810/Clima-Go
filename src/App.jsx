@@ -22,16 +22,36 @@ export default function App() {
   const [currentTime, setCurrentTime] = useState("");
   const [currentDateStr, setCurrentDateStr] = useState("");
   const [hourlyList, setHourlyList] = useState([]);
-  const [isDarkMode, setIsDarkMode] = useState(true);
+  
+  // MODO DE TEMA: 'dark' | 'light' | 'glass'
+  const [themeMode, setThemeMode] = useState('dark');
+  
+  // Clave para reiniciar la animación en cascada al cambiar de ciudad
+  const [cascadeKey, setCascadeKey] = useState(0);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Consultar clima con horas consecutivas exactas
+  // Ciclo entre los 3 modos de tema
+  const cycleTheme = () => {
+    if (themeMode === 'dark') setThemeMode('light');
+    else if (themeMode === 'light') setThemeMode('glass');
+    else setThemeMode('dark');
+  };
+
+  const getThemeText = () => {
+    if (themeMode === 'dark') return { label: 'Modo Oscuro', icon: 'fa-solid fa-moon', activeClass: 'dark-active' };
+    if (themeMode === 'light') return { label: 'Modo Claro', icon: 'fa-solid fa-sun', activeClass: 'light-active' };
+    return { label: 'Modo Cristal', icon: 'fa-solid fa-wand-magic-sparkles', activeClass: 'glass-active' };
+  };
+
+  const currentThemeInfo = getThemeText();
+
+  // Consultar clima
   const fetchWeather = async (cityName) => {
     setLoading(true);
     setError(null);
     try {
-      // 1. Geocoding
       const geoRes = await fetch(
         `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cityName)}&count=1&language=es&format=json`
       );
@@ -45,7 +65,6 @@ export default function App() {
 
       const { name, country, latitude, longitude } = geoData.results[0];
 
-      // 2. Weather API
       const weatherRes = await fetch(
         `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&hourly=temperature_2m,relativehumidity_2m,surface_pressure,windspeed_10m,winddirection_10m,weathercode,uv_index&daily=weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset&timezone=auto`
       );
@@ -54,7 +73,6 @@ export default function App() {
       setCity(`${name}, ${country}`);
       setWeatherData(data);
 
-      // Reloj Digital de la Ciudad
       const tz = data.timezone || 'UTC';
       const now = new Date();
       
@@ -75,7 +93,7 @@ export default function App() {
       setCurrentTime(timeStr);
       setCurrentDateStr(dateStr.charAt(0).toUpperCase() + dateStr.slice(1));
 
-      // 3. Pronóstico de las siguientes 5 horas consecutivas reales
+      // Horas consecutivas reales
       if (data.hourly && data.hourly.time) {
         const cityNowStr = new Date().toLocaleString("en-US", { timeZone: tz });
         const cityDate = new Date(cityNowStr);
@@ -100,17 +118,14 @@ export default function App() {
             const wind = Math.round(data.hourly.windspeed_10m[idx]);
             const windDir = data.hourly.winddirection_10m[idx] || 0;
 
-            list.push({
-              timeLabel: hourFormatted,
-              temp,
-              code,
-              wind,
-              windDir
-            });
+            list.push({ timeLabel: hourFormatted, temp, code, wind, windDir });
           }
         }
         setHourlyList(list);
       }
+
+      // Reiniciar clave de animación en cascada
+      setCascadeKey(prev => prev + 1);
 
     } catch (err) {
       setError("Error cargando la información meteorológica.");
@@ -141,6 +156,7 @@ export default function App() {
       const data = await res.json();
       setCity("Mi Ubicación");
       setWeatherData(data);
+      setCascadeKey(prev => prev + 1);
       setLoading(false);
     });
   };
@@ -165,20 +181,20 @@ export default function App() {
   const sunsetStr = formatSunTime(weatherData?.daily?.sunset?.[0]);
 
   return (
-    <div className={`weather-dashboard-viewport ${isDarkMode ? 'dark-theme' : 'light-theme'}`}>
+    <div className={`weather-dashboard-viewport theme-${themeMode}`}>
       <div className="container-inner">
         
-        {/* TOP NAVIGATION BAR CON CLIMAGO */}
+        {/* TOP NAVIGATION BAR CON CLIMAGO Y SWITCH TRIPLE */}
         <div className="top-nav-bar">
           <div className="brand-header-group">
             <h1 className="app-title-logo"><i className="fa-solid fa-cloud-sun"></i> ClimaGo</h1>
             
-            {/* SWITCH MODO CLARO / OSCURO */}
-            <div className="dark-mode-toggle" onClick={() => setIsDarkMode(!isDarkMode)}>
-              <div className={`switch-btn ${isDarkMode ? 'active' : ''}`}>
+            {/* INTERRUPTOR MODO TRIPLE: DARK -> LIGHT -> GLASS */}
+            <div className="dark-mode-toggle" onClick={cycleTheme} title="Haz clic para cambiar de modo">
+              <div className={`switch-btn ${currentThemeInfo.activeClass}`}>
                 <div className="switch-ball"></div>
               </div>
-              <span>{isDarkMode ? 'Modo Oscuro' : 'Modo Claro'}</span>
+              <span><i className={currentThemeInfo.icon}></i> {currentThemeInfo.label}</span>
             </div>
           </div>
 
@@ -199,22 +215,23 @@ export default function App() {
         </div>
 
         {error && <div style={{ color: '#ef4444', textAlign: 'center' }}>{error}</div>}
-        {loading && <div style={{ textAlign: 'center', padding: '3rem' }}>Cargando información meteorológica...</div>}
+        {loading && <div style={{ textAlign: 'center', padding: '3rem' }}>Consultando estación meteorológica...</div>}
 
         {!loading && weatherData && (
-          <>
-            {/* GRID SUPERIOR */}
+          <div key={cascadeKey} style={{ display: 'flex', flexDirection: 'column', gap: '1.8rem' }}>
+            
+            {/* GRID SUPERIOR CON ANIMACIÓN EN CASCADA */}
             <div className="top-dashboard-grid">
               
-              {/* PANEL 1: CIUDAD Y RELOJ */}
-              <div className="panel-clock">
+              {/* PANEL 1: CIUDAD Y RELOJ (DELAY 1) */}
+              <div className="panel-clock cascade-item delay-1">
                 <h2 className="city-name-header">{city}</h2>
                 <div className="clock-digital-big">{currentTime || "09:03"}</div>
                 <div className="clock-date-text">{currentDateStr || "Jueves, 31 de Agosto"}</div>
               </div>
 
-              {/* PANEL 2: CLIMA PRINCIPAL & MÉTRICAS 2x2 */}
-              <div className="panel-weather-main">
+              {/* PANEL 2: CLIMA PRINCIPAL & MÉTRICAS (DELAY 2) */}
+              <div className="panel-weather-main cascade-item delay-2">
                 
                 <div className="main-temp-block">
                   <div className="temp-number-huge">
@@ -278,11 +295,11 @@ export default function App() {
               </div>
             </div>
 
-            {/* GRID INFERIOR */}
+            {/* GRID INFERIOR CON ANIMACIÓN EN CASCADA */}
             <div className="bottom-dashboard-grid">
               
-              {/* PANEL 3: PRONÓSTICO DE 3 DÍAS */}
-              <div className="panel-5days">
+              {/* PANEL 3: PRONÓSTICO DE 3 DÍAS (DELAY 3) */}
+              <div className="panel-5days cascade-item delay-3">
                 <h3 className="panel-title">Pronóstico de 3 Días:</h3>
                 <div className="days-list-5">
                   {weatherData.daily?.time?.slice(1, 4).map((dayStr, idx) => {
@@ -305,8 +322,8 @@ export default function App() {
                 </div>
               </div>
 
-              {/* PANEL 4: PRONÓSTICO POR HORAS CONSECUTIVAS */}
-              <div className="panel-hourly">
+              {/* PANEL 4: PRONÓSTICO POR HORAS (DELAY 4) */}
+              <div className="panel-hourly cascade-item delay-4">
                 <h3 className="panel-title">Pronóstico por Horas:</h3>
                 <div className="hourly-cards-row">
                   {hourlyList.map((item, idx) => {
@@ -330,11 +347,11 @@ export default function App() {
               </div>
 
             </div>
-          </>
+          </div>
         )}
 
         <footer className="footer">
-          ClimaGo - Practicas - Marxel Rodríguez
+          ClimaGo · Practicas por Marxel Rodríguez
         </footer>
       </div>
     </div>
