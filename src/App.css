@@ -45,7 +45,7 @@ body {
   background-color: var(--bg-main);
   color: var(--text-white);
   min-height: 100vh;
-  padding: 2rem 1.5rem;
+  padding: 2.2rem 1.5rem;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
@@ -449,34 +449,159 @@ body {
   margin-top: 1rem;
 }
 
-/* RESPONSIVE MÓVIL */
-@media (max-width: 850px) {
+/* ==========================================================================
+   ADAPTACIÓN RESPONSIVA PARA CELULARES (MÓVIL)
+   ========================================================================== */
+@media (max-width: 768px) {
+  .weather-dashboard-viewport {
+    padding: 1.2rem 0.9rem;
+  }
+
   .top-nav-bar {
     flex-direction: column;
     align-items: stretch;
+    gap: 1rem;
   }
+
   .brand-header-group {
     justify-content: space-between;
+    width: 100%;
   }
+
+  .app-title-logo {
+    font-size: 1.35rem;
+  }
+
   .search-box-bar {
     max-width: 100%;
   }
-  .top-dashboard-grid, .bottom-dashboard-grid {
-    grid-template-columns: 1fr;
+
+  .search-input-field {
+    padding: 0.75rem 1rem 0.75rem 2.6rem;
+    font-size: 0.85rem;
   }
+
+  .btn-gps-green {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .top-dashboard-grid, 
+  .bottom-dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: 1.2rem;
+  }
+
+  .panel-clock {
+    padding: 1.5rem 1.2rem;
+    border-radius: 20px;
+  }
+
+  .city-name-header {
+    font-size: 1.4rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .clock-digital-big {
+    font-size: 3rem;
+  }
+
+  .clock-date-text {
+    font-size: 0.82rem;
+  }
+
   .panel-weather-main {
     grid-template-columns: 1fr;
+    padding: 1.5rem 1.2rem;
+    gap: 1.5rem;
     text-align: center;
+    border-radius: 20px;
   }
+
   .main-temp-block {
     align-items: center;
+    gap: 0.5rem;
   }
+
+  .temp-number-huge {
+    font-size: 3.2rem;
+  }
+
+  .vector-weather-icon-lg {
+    font-size: 3.8rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .sun-times-group {
+    flex-direction: row;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-top: 0.8rem;
+  }
+
+  .metrics-quad-panel {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.9rem;
+    padding-top: 0.8rem;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .metric-quad-item i {
+    font-size: 1.3rem;
+  }
+
+  .metric-quad-val {
+    font-size: 0.9rem;
+  }
+
+  .panel-5days {
+    padding: 1.4rem 1.2rem;
+    border-radius: 20px;
+  }
+
+  .panel-title {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .day-row-item {
+    font-size: 0.85rem;
+  }
+
+  /* SCROLL TÁCTIL HORIZONTAL PARA LAS HORAS */
+  .panel-hourly {
+    padding: 1.4rem 1.2rem;
+    border-radius: 20px;
+  }
+
   .hourly-cards-row {
     display: flex;
     overflow-x: auto;
-    padding-bottom: 0.8rem;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 0.6rem;
+    gap: 0.8rem;
+    -webkit-overflow-scrolling: touch;
   }
+
+  .hourly-cards-row::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .hourly-cards-row::-webkit-scrollbar-thumb {
+    background: var(--accent-green);
+    border-radius: 10px;
+  }
+
   .hourly-card-box {
-    min-width: 75px;
+    flex: 0 0 72px;
+    min-width: 72px;
+    scroll-snap-align: start;
+    padding: 1rem 0.4rem;
+    border-radius: 18px;
   }
+
+  .hourly-time { font-size: 0.78rem; }
+  .hourly-icon i { font-size: 1.2rem; }
+  .hourly-temp { font-size: 0.88rem; }
+  .hourly-wind-dir { font-size: 0.7rem; }
 }
